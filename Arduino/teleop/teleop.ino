@@ -1,9 +1,9 @@
 #include <Servo.h>
 
-#define FL_motor_pin 4
-#define FR_motor_pin 5
-#define BL_motor_pin 6
-#define BR_motor_pin 7
+#define FL_motor_pin 2
+#define FR_motor_pin 3
+#define BL_motor_pin 4
+#define BR_motor_pin 5
 
 #define CH1_pin 8
 #define CH2_pin 9
@@ -25,10 +25,10 @@ Servo FL_motor, FR_motor, BL_motor, BR_motor;
 //float rotate_ratio_fl = ((WHEELBASE + WHEELTRACK) / 2.0f - ROTATE_X_OFFSET - ROTATE_Y_OFFSET) / RADIAN_COEF;
 //float rotate_ratio_bl = ((WHEELBASE + WHEELTRACK) / 2.0f + ROTATE_X_OFFSET - ROTATE_Y_OFFSET) / RADIAN_COEF;
 //float rotate_ratio_br = ((WHEELBASE + WHEELTRACK) / 2.0f + ROTATE_X_OFFSET + ROTATE_Y_OFFSET) / RADIAN_COEF;
-float rotate_ratio_fr = 1; 
-float rotate_ratio_fl = 1; 
-float rotate_ratio_bl = 1; 
-float rotate_ratio_br = 1;
+float rotate_ratio_fr = 0.5; 
+float rotate_ratio_fl = 0.5; 
+float rotate_ratio_bl = 0.5; 
+float rotate_ratio_br = 0.5;
 
 void setup() {
   Serial.begin(9600);
@@ -52,9 +52,36 @@ void loop() {
   CH5 = (pulseIn(CH5_pin, HIGH) - 995) / 994.0; // left knob
   CH6 = (pulseIn(CH6_pin, HIGH) - 995) / 994.0; // right knob
 
-  float vx = CH1 * 2 - 1;
-  float vy = CH2 * 2 - 1;
-  float vw = CH4 * 2 - 1;
+  float vx = CH2 * 2 - 1;
+  float vy = -(CH1 * 2 - 1);
+  float vw = - (CH4 * 2 - 1);
+  float power_switch= CH5 * 2 -1;
+
+  if (fabs(vx) < 0.07)
+  {
+    vx = 0.0;
+  }
+
+  if (fabs(vy) < 0.07)
+  {
+    vy = 0.0;
+  }
+
+  if (fabs(vw) < 0.07)
+  {
+    vw = 0.0;
+  }
+
+  if (power_switch > 0)
+  {
+    vx = 0.0;
+    vy = 0.0;
+    vw = 0.0;
+  }
+
+  vx = vx;
+  vy = vy;
+  vw = vw;
 
   float wheel_v[4];
   float max_v = 0;
@@ -83,12 +110,9 @@ void loop() {
   BL_motor.writeMicroseconds(int(wheel_v[2] * 1000 + 1500));
   BR_motor.writeMicroseconds(int(wheel_v[3] * 1000 + 1500));
   
-  Serial.println('=');
-  Serial.println(CH1);
-  Serial.println(CH2);
-  Serial.println(CH3);
-  Serial.println(CH4);
-  Serial.println(CH5);
-  Serial.println(CH6);
-  delay(20);
+//  Serial.println('=');
+//  Serial.println(vx);
+//  Serial.println(vy);
+//  Serial.println(vw);
+  delay(25);
 }
